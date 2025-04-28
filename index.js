@@ -1,29 +1,24 @@
 require("dotenv").config();
 const express = require("express");
-const mongoose = require("mongoose"); // FIXED here
+const redisClient = require('./Config/redis');
+const UserRoutes = require("./Routes/Routes");
 const app = express();
-const connectdb = require("./Config/db");const Port = process.env.PORT || 5000;
+const connectdb = require("./Config/db");
+const Port = process.env.PORT || 5000;
 
-// connect to db
-connectdbdb();
-
-// middleware
+// Middleware
 app.use(express.json());
 
-// routes
+// Connect to the database
+connectdb();
+
+// Routes
 app.get("/", (req, res) => {
   res.send("Hello World");
 });
+app.use(UserRoutes); // Ensure routes are used
 
-// server
-mongoose
-  .connect(process.env.MONGO_URL)
-  .then(() => {
-    console.log("Connected to MongoDB");
-    app.listen(Port, "localhost", () => {
-      console.log(`Server is running on port http://localhost:${Port}`);
-    });
-  })
-  .catch((error) => {
-    console.error("Failed to connect to MongoDB", error);
-  });
+// Server
+app.listen(Port, () => {
+  console.log(`Server is running on http://localhost:${Port}`); // Fixed typo in URL
+});
