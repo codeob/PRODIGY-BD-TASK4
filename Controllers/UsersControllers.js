@@ -38,7 +38,7 @@ const CreateUser = async (req, res) => {
       // Cache the updated users list (expires in 1 hour)
       redisClient.set("allUsers", {
         value: JSON.stringify(allUsers),
-        EX: 3600,  // Set expiration time (3600 seconds = 1 hour)
+        EX: 3600, // Set expiration time (3600 seconds = 1 hour)
       });
     });
 
@@ -71,7 +71,7 @@ const GetAllUsers = async (req, res) => {
       const users = await UserModel.find(); // Fetch from MongoDB
       redisClient.set("allUsers", {
         value: JSON.stringify(users), // Cache the users for 1 hour
-        EX: 3600,  // Expiration time
+        EX: 3600, // Expiration time
       });
       console.log("Cache miss");
       return res.json(users);
@@ -85,7 +85,11 @@ const GetAllUsers = async (req, res) => {
 // Update a user's data and update cache
 const UpdateUser = async (req, res) => {
   try {
-    const updatedUser = await UserModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
 
     // Invalidate the Redis cache and refresh it with updated data
     redisClient.get("allUsers", (err, data) => {
@@ -99,7 +103,9 @@ const UpdateUser = async (req, res) => {
       }
 
       // Replace the updated user data in the list (assuming the user exists in the cache)
-      const index = allUsers.findIndex((user) => user._id.toString() === updatedUser._id.toString());
+      const index = allUsers.findIndex(
+        (user) => user._id.toString() === updatedUser._id.toString()
+      );
       if (index !== -1) {
         allUsers[index] = updatedUser; // Replace the old user with the updated one
       }
@@ -107,7 +113,7 @@ const UpdateUser = async (req, res) => {
       // Update the cache with the new list
       redisClient.set("allUsers", {
         value: JSON.stringify(allUsers),
-        EX: 3600,  // Expiration time
+        EX: 3600, // Expiration time
       });
     });
 
@@ -139,12 +145,14 @@ const DeleteUser = async (req, res) => {
       }
 
       // Remove the deleted user from the list
-      allUsers = allUsers.filter((user) => user._id.toString() !== deletedUser._id.toString());
+      allUsers = allUsers.filter(
+        (user) => user._id.toString() !== deletedUser._id.toString()
+      );
 
       // Update the cache with the new list
       redisClient.set("allUsers", {
         value: JSON.stringify(allUsers),
-        EX: 3600,  // Expiration time
+        EX: 3600, // Expiration time
       });
     });
 

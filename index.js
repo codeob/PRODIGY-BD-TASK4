@@ -1,6 +1,6 @@
 require("dotenv").config();
 const express = require("express");
-const redisClient = require('./Config/redis');
+const redisClient = require("./Config/redis");
 const UserRoutes = require("./Routes/Routes");
 const app = express();
 const connectdb = require("./Config/db");
